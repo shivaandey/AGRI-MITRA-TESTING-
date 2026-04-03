@@ -1,0 +1,10 @@
+flask
+flask-cors
+requests
+deep-translator
+python-dotenv
+pillow
+faster-whisper
+soundfile
+scikit-learn
+joblib

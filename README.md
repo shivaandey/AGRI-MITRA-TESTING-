@@ -56,10 +56,19 @@ If you see a Vercel error page with an ID like `bom1::...`, it usually means the
   - Response includes: `rain_expected_3d` and `fertilizer_advice`
 - `POST /api/soil-scan`: Upload a soil photo and get soil type + water recommendation
   - Form-data: `image` (file), `crop` (optional), `lang` (optional), `temp` (optional)
+- `POST /api/intent`: Intent detection (trainable) for voice assistant
+  - JSON: `{ "text": "...", "lang": "auto|en|te|hi|..." }`
+- `POST /api/assistant`: Voice assistant orchestration (intent + action)
+  - JSON: `{ "text": "...", "lat": ..., "lon": ..., "crop": "...", "lang": "..." }`
+  - or Form-data: `audio` (file), `lat` (optional), `lon` (optional), `crop` (optional), `lang` (optional)
 - `POST /api/stt` (local/OCI only): Speech-to-text via faster-whisper
   - Form-data: `audio` (file), `lang` (optional)
 - `POST /api/tts` (local/OCI only): Text-to-speech via Piper (returns WAV)
   - JSON: `{ "text": "...", "lang": "auto|en|te|hi|..." }`
+
+## Training (Intent Model)
+
+To train the intent model used by `/api/intent` and `/api/assistant`, see `ml/README.md`.
 
 ## Technologies Used
 
