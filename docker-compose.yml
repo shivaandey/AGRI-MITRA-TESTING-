@@ -1,0 +1,16 @@
+services:
+  agri-mitra:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      # Put these in your local `.env` file (same folder) or export them in your shell.
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      GOVT_API_KEY: ${GOVT_API_KEY:-}
+      # Default to offline mode for easy local testing (set OFFLINE_MODE=0 to enable external API calls).
+      OFFLINE_MODE: ${OFFLINE_MODE:-1}
+      # Optional STT config (only matters if you use `/api/stt`).
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
+
