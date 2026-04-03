@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri Mitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center py-4 px-2">
+
+    <div class="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl p-6 flex flex-col relative border-[12px] border-gray-50">
+        
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-black text-emerald-800 italic tracking-tighter">AGRI MITRA</h1>
+            <button onclick="toggleLang()" id="lang-btn" class="w-10 h-10 rounded-full bg-emerald-100 border-2 border-emerald-600 flex items-center justify-center font-bold text-emerald-800 hover:bg-emerald-600 hover:text-white transition-all">
+                E
+            </button>
+        </div>
+
+        <div class="bg-emerald-600 text-white rounded-[2rem] p-5 shadow-inner mb-6">
+            <h3 class="text-[10px] font-bold uppercase opacity-80 mb-2">Live Weather Status</h3>
+            <div class="flex justify-between mb-4">
+                <p class="text-sm">Temp: <span id="ui-temp" class="font-bold">--°C</span></p>
+                <p class="text-sm">Humidity: <span id="ui-hum" class="font-bold">--%</span></p>
+            </div>
+            <div class="bg-emerald-500 bg-opacity-40 rounded-2xl p-3 border border-emerald-400">
+                <p class="text-[9px] uppercase font-bold mb-1">Advisor Recommendation:</p>
+                <p id="ui-water" class="text-sm font-bold leading-tight">Tap the Mic to start analysis...</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <label class="text-[9px] font-black text-gray-400 uppercase">Crop Type</label>
+                <select id="crop-input" class="w-full bg-transparent font-bold text-gray-800 outline-none text-sm appearance-none">
+                    <option value="Paddy">Paddy</option>
+                    <option value="Coconut">Coconut</option>
+                    <option value="Cotton">Cotton</option>
+                </select>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <label class="text-[9px] font-black text-gray-400 uppercase">Soil Type</label>
+                <p id="ui-soil" class="text-sm font-bold text-gray-800">Sandy Loam</p>
+            </div>
+        </div>
+
+        <div class="flex-grow bg-gray-50 rounded-[2rem] p-5 border border-gray-100 overflow-y-auto mb-20">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase mb-3">Govt. Fertilizer Rates</h3>
+            <div id="fert-list" class="space-y-3">
+                <p class="text-xs text-gray-400 italic text-center py-4">Analysis results will show prices here.</p>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 left-0 w-full flex justify-center space-x-10 px-8">
+            <div class="flex flex-col items-center">
+                <button onclick="alert('Camera opening for soil scanning...')" class="w-14 h-14 bg-white border-2 border-emerald-100 rounded-full flex items-center justify-center shadow-lg hover:bg-emerald-50 transition-all">
+                    <span class="text-2xl">📷</span>
+                </button>
+                <span class="text-[8px] font-bold mt-1 text-gray-400">SOIL SCAN</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <button onclick="startAdvisor()" class="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200 hover:scale-105 active:scale-95 transition-all">
+                    <span class="text-2xl text-white">🎤</span>
+                </button>
+                <span class="text-[8px] font-bold mt-1 text-emerald-600 uppercase">Listen</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'te'; // Default starts as Telugu
+
+        function toggleLang() {
+            if (currentLang === 'te') {
+                currentLang = 'en';
+                document.getElementById('lang-btn').innerText = 'తె'; // Show Telugu char when in English mode
+                alert("Language set to English");
+            } else {
+                currentLang = 'te';
+                document.getElementById('lang-btn').innerText = 'E'; // Show E when in Telugu mode
+                alert("భాష తెలుగులోకి మార్చబడింది");
+            }
+        }
+
+        async function startAdvisor() {
+            const crop = document.getElementById('crop-input').value;
+            const waterUi = document.getElementById('ui-water');
+            
+            waterUi.innerText = "Analyzing field data...";
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/analyze', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ 
+                            lat: pos.coords.latitude, 
+                            lon: pos.coords.longitude,
+                            crop: crop,
+                            lang: currentLang
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    // Update Weather Stats
+                    document.getElementById('ui-temp').innerText = data.temp + "°C";
+                    document.getElementById('ui-hum').innerText = data.humidity + "%";
+                    
+                    // Update Translated Advice
+                    waterUi.innerText = data.irrigation;
+
+                    // Update Fertilizer List with Units
+                    const list = document.getElementById('fert-list');
+                    list.innerHTML = "";
+                    data.fertilizers.forEach(f => {
+                        list.innerHTML += `
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-700">${f.name}</span>
+                                    <span class="text-[10px] text-gray-400 font-bold">${f.unit} Pack</span>
+                                </div>
+                                <span class="text-sm font-black text-emerald-600">₹${f.price}</span>
+                            </div>
+                        `;
+                    });
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    waterUi.innerText = "Error connecting to server.";
+                }
+            }, (err) => {
+                alert("Please enable Location access to get weather data.");
+            });
+        }
+    </script>
+</body>
+</html>

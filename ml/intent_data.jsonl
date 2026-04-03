@@ -1,0 +1,17 @@
+{"text":"What is the weather today and should I irrigate my paddy?","intent":"analyze_weather"}
+{"text":"Should I water my crop now?","intent":"analyze_weather"}
+{"text":"Will it rain in next three days?","intent":"analyze_weather"}
+{"text":"Give irrigation advice for cotton","intent":"analyze_weather"}
+{"text":"How much water should I give to my field?","intent":"analyze_weather"}
+{"text":"What fertilizer prices for paddy?","intent":"fertilizer_prices"}
+{"text":"Show fertilizer rates for cotton","intent":"fertilizer_prices"}
+{"text":"Urea price please","intent":"fertilizer_prices"}
+{"text":"DAP price","intent":"fertilizer_prices"}
+{"text":"Hello","intent":"greeting"}
+{"text":"Hi agri mitra","intent":"greeting"}
+{"text":"Help","intent":"help"}
+{"text":"What can you do?","intent":"help"}
+{"text":"ನಮಸ್ಕಾರ","intent":"greeting"}
+{"text":"నమస్తే","intent":"greeting"}
+{"text":"ఎరువు ధరలు చెప్పండి","intent":"fertilizer_prices"}
+{"text":"నీరు ఎప్పుడు పోయాలి","intent":"analyze_weather"}

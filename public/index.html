@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri Mitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center py-4 px-2">
+
+    <div class="bg-white w-full max-w-sm rounded-[3rem] shadow-2xl p-6 flex flex-col relative border-[12px] border-gray-50">
+        
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-black text-emerald-800 italic tracking-tighter">AGRI MITRA</h1>
+            <button onclick="toggleLang()" id="lang-btn" class="w-10 h-10 rounded-full bg-emerald-100 border-2 border-emerald-600 flex items-center justify-center font-bold text-emerald-800 hover:bg-emerald-600 hover:text-white transition-all">
+                
+            </button>
+        </div>
+
+        <div class="bg-emerald-600 text-white rounded-[2rem] p-5 shadow-inner mb-6">
+            <h3 class="text-[10px] font-bold uppercase opacity-80 mb-2">Live Weather Status</h3>
+            <p id="ui-place" class="text-[10px] font-bold opacity-90 mb-2">Location: --</p>
+            <div class="flex justify-between mb-4">
+                <p class="text-sm">Temp: <span id="ui-temp" class="font-bold">--&deg;C</span></p>
+                <p class="text-sm">Humidity: <span id="ui-hum" class="font-bold">--%</span></p>
+            </div>
+            <div class="bg-emerald-500 bg-opacity-40 rounded-2xl p-3 border border-emerald-400">
+                <p class="text-[9px] uppercase font-bold mb-1">Advisor Recommendation:</p>
+                <p id="ui-water" class="text-sm font-bold leading-tight whitespace-pre-line">Loading weather...</p>
+                <p id="ui-fert-advice" class="mt-2 text-[10px] font-bold opacity-90 whitespace-pre-line"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <label id="label-crop" class="text-[9px] font-black text-gray-400 uppercase">Crop Type</label>
+                <select id="crop-input" class="w-full bg-transparent font-bold text-gray-800 outline-none text-sm appearance-none">
+                    <option value="Paddy">Paddy</option>
+                    <option value="Coconut">Coconut</option>
+                    <option value="Cotton">Cotton</option>
+                    <option value="Wheat">Wheat</option>
+                    <option value="Maize">Maize</option>
+                    <option value="Sugarcane">Sugarcane</option>
+                    <option value="Sorghum (Jowar)">Sorghum (Jowar)</option>
+                    <option value="Pearl Millet (Bajra)">Pearl Millet (Bajra)</option>
+                    <option value="Finger Millet (Ragi)">Finger Millet (Ragi)</option>
+                    <option value="Groundnut">Groundnut</option>
+                    <option value="Soybean">Soybean</option>
+                    <option value="Mustard">Mustard</option>
+                    <option value="Sunflower">Sunflower</option>
+                    <option value="Chickpea (Gram)">Chickpea (Gram)</option>
+                    <option value="Pigeon Pea (Tur)">Pigeon Pea (Tur)</option>
+                    <option value="Lentil">Lentil</option>
+                    <option value="Green Gram (Moong)">Green Gram (Moong)</option>
+                    <option value="Black Gram (Urad)">Black Gram (Urad)</option>
+                    <option value="Tea">Tea</option>
+                    <option value="Coffee">Coffee</option>
+                    <option value="Rubber">Rubber</option>
+                    <option value="Banana">Banana</option>
+                    <option value="Mango">Mango</option>
+                    <option value="Grapes">Grapes</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Onion">Onion</option>
+                    <option value="Potato">Potato</option>
+                    <option value="Tomato">Tomato</option>
+                    <option value="Chilli">Chilli</option>
+                    <option value="Turmeric">Turmeric</option>
+                    <option value="Ginger">Ginger</option>
+                    <option value="Jute">Jute</option>
+                </select>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <label id="label-soil" class="text-[9px] font-black text-gray-400 uppercase">Soil Type</label>
+                <p id="ui-soil" class="text-sm font-bold text-gray-800" data-en="Sandy Loam">Sandy Loam</p>
+                <img id="soil-preview" class="mt-2 w-full h-16 object-cover rounded-xl hidden" alt="Soil photo preview" />
+                <p id="soil-scan-hint" class="mt-1 text-[9px] font-bold text-gray-400">Tap Soil Scan</p>
+            </div>
+        </div>
+
+        <div class="flex-grow bg-gray-50 rounded-[2rem] p-5 border border-gray-100 overflow-y-auto mb-20">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase mb-3">Govt. Fertilizer Rates</h3>
+            <div id="fert-list" class="space-y-3">
+                <p class="text-xs text-gray-400 italic text-center py-4">Analysis results will show prices here.</p>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 left-0 w-full flex justify-center space-x-10 px-8">
+            <div class="flex flex-col items-center">
+                <button onclick="openSoilScanSheet()" class="w-14 h-14 bg-white border-2 border-emerald-100 rounded-full flex items-center justify-center shadow-lg hover:bg-emerald-50 transition-all">
+                    <span class="text-2xl">📷</span>
+                </button>
+                <span class="text-[8px] font-bold mt-1 text-gray-400">SOIL SCAN</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <button onclick="toggleVoiceAssistant()" id="mic-btn" class="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200 hover:scale-105 active:scale-95 transition-all">
+                    <span class="text-2xl text-white">🎤</span>
+                </button>
+                <span class="text-[8px] font-bold mt-1 text-emerald-600 uppercase">Ask</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="soil-scan-sheet" class="fixed inset-0 bg-black/40 hidden items-end justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-4 shadow-2xl">
+            <p class="text-sm font-black text-gray-800 mb-3">Soil Photo</p>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button id="soil-open-camera" class="py-3 rounded-2xl bg-emerald-600 text-white font-bold">Open Camera</button>
+                <button id="soil-open-gallery" class="py-3 rounded-2xl bg-gray-100 text-gray-800 font-bold">Choose Gallery</button>
+            </div>
+            <button onclick="closeSoilScanSheet()" class="w-full py-3 rounded-2xl bg-white border border-gray-200 text-gray-700 font-bold">Cancel</button>
+        </div>
+    </div>
+
+    <div id="soil-camera-modal" class="fixed inset-0 bg-black/60 hidden items-end justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-4 shadow-2xl">
+            <p class="text-sm font-black text-gray-800 mb-3">Camera</p>
+            <div class="bg-black rounded-2xl overflow-hidden">
+                <video id="soil-camera-video" class="w-full h-60 object-cover" autoplay playsinline muted></video>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+                <button id="soil-camera-capture" class="py-3 rounded-2xl bg-emerald-600 text-white font-bold">Capture</button>
+                <button id="soil-camera-close" class="py-3 rounded-2xl bg-white border border-gray-200 text-gray-700 font-bold">Close</button>
+            </div>
+            <p id="soil-camera-note" class="mt-2 text-[10px] font-bold text-gray-400">
+                Tip: On some phones, Camera may open the file picker unless browser supports live camera access.
+            </p>
+        </div>
+    </div>
+
+    <input id="soil-camera-input" type="file" accept="image/*" capture="environment" class="hidden" />
+    <input id="soil-gallery-input" type="file" accept="image/*" class="hidden" />
+
+    <script>
+        const localLang = ((navigator.language || 'en').split('-')[0] || 'en').toLowerCase();
+        let currentLang = 'auto'; // Default: server infers from place + browser
+        let detectedLang = localLang;
+        let lastSoilCategory = null;
+        let lastCoords = null;
+        let lastAnalysis = null;
+        let lastAnalysisAt = 0;
+
+        let _recorder = null;
+        let _recorderStream = null;
+        let _recorderChunks = [];
+        let _isRecording = false;
+
+        const I18N = {
+            en: {
+                labels: { crop: "Crop Type", soil: "Soil Type" },
+                crops: {
+                    Paddy: "Paddy",
+                    Coconut: "Coconut",
+                    Cotton: "Cotton",
+                    Wheat: "Wheat",
+                    Maize: "Maize",
+                    Sugarcane: "Sugarcane",
+                    "Sorghum (Jowar)": "Sorghum (Jowar)",
+                    "Pearl Millet (Bajra)": "Pearl Millet (Bajra)",
+                    "Finger Millet (Ragi)": "Finger Millet (Ragi)",
+                    Groundnut: "Groundnut",
+                    Soybean: "Soybean",
+                    Mustard: "Mustard",
+                    Sunflower: "Sunflower",
+                    "Chickpea (Gram)": "Chickpea (Gram)",
+                    "Pigeon Pea (Tur)": "Pigeon Pea (Tur)",
+                    Lentil: "Lentil",
+                    "Green Gram (Moong)": "Green Gram (Moong)",
+                    "Black Gram (Urad)": "Black Gram (Urad)",
+                    Tea: "Tea",
+                    Coffee: "Coffee",
+                    Rubber: "Rubber",
+                    Banana: "Banana",
+                    Mango: "Mango",
+                    Grapes: "Grapes",
+                    Apple: "Apple",
+                    Orange: "Orange",
+                    Onion: "Onion",
+                    Potato: "Potato",
+                    Tomato: "Tomato",
+                    Chilli: "Chilli",
+                    Turmeric: "Turmeric",
+                    Ginger: "Ginger",
+                    Jute: "Jute",
+                },
+                soils: { "Sandy Loam": "Sandy Loam" },
+            },
+            te: {
+                labels: { crop: "పంట రకం", soil: "నేల రకం" },
+                crops: {
+                    Paddy: "వరి",
+                    Coconut: "కొబ్బరి",
+                    Cotton: "పత్తి",
+                    Wheat: "గోధుమ",
+                    Maize: "మొక్కజొన్న",
+                    Sugarcane: "చెరకు",
+                    "Sorghum (Jowar)": "జొన్న",
+                    "Pearl Millet (Bajra)": "సజ్జలు",
+                    "Finger Millet (Ragi)": "రాగి",
+                    Groundnut: "వేరుశెనగ",
+                    Soybean: "సోయాబీన్",
+                    Mustard: "ఆవాలు",
+                    Sunflower: "పొద్దుతిరుగుడు",
+                    "Chickpea (Gram)": "సెనగలు",
+                    "Pigeon Pea (Tur)": "కందులు",
+                    Lentil: "మసూర్",
+                    "Green Gram (Moong)": "పెసలు",
+                    "Black Gram (Urad)": "మినుములు",
+                    Tea: "టీ",
+                    Coffee: "కాఫీ",
+                    Rubber: "రబ్బరు",
+                    Banana: "అరటి",
+                    Mango: "మామిడి",
+                    Grapes: "ద్రాక్ష",
+                    Apple: "ఆపిల్",
+                    Orange: "నారింజ",
+                    Onion: "ఉల్లిపాయ",
+                    Potato: "బంగాళాదుంప",
+                    Tomato: "టమాటా",
+                    Chilli: "మిర్చి",
+                    Turmeric: "పసుపు",
+                    Ginger: "అల్లం",
+                    Jute: "జ్యూట్",
+                },
+                soils: { "Sandy Loam": "ఇసుక లోమ్" },
+            },
+            hi: {
+                labels: { crop: "फसल प्रकार", soil: "मिट्टी का प्रकार" },
+                crops: {
+                    Paddy: "धान",
+                    Coconut: "नारियल",
+                    Cotton: "कपास",
+                    Wheat: "गेहूँ",
+                    Maize: "मक्का",
+                    Sugarcane: "गन्ना",
+                    "Sorghum (Jowar)": "ज्वार",
+                    "Pearl Millet (Bajra)": "बाजरा",
+                    "Finger Millet (Ragi)": "रागी",
+                    Groundnut: "मूंगफली",
+                    Soybean: "सोयाबीन",
+                    Mustard: "सरसों",
+                    Sunflower: "सूरजमुखी",
+                    "Chickpea (Gram)": "चना",
+                    "Pigeon Pea (Tur)": "अरहर (तूर)",
+                    Lentil: "मसूर",
+                    "Green Gram (Moong)": "मूंग",
+                    "Black Gram (Urad)": "उड़द",
+                    Tea: "चाय",
+                    Coffee: "कॉफी",
+                    Rubber: "रबर",
+                    Banana: "केला",
+                    Mango: "आम",
+                    Grapes: "अंगूर",
+                    Apple: "सेब",
+                    Orange: "संतरा",
+                    Onion: "प्याज",
+                    Potato: "आलू",
+                    Tomato: "टमाटर",
+                    Chilli: "मिर्च",
+                    Turmeric: "हल्दी",
+                    Ginger: "अदरक",
+                    Jute: "जूट",
+                },
+                soils: { "Sandy Loam": "रेतीली दोमट" },
+            },
+            ta: {
+                labels: { crop: "பயிர் வகை", soil: "மண் வகை" },
+                crops: {
+                    Paddy: "நெல்",
+                    Coconut: "தேங்காய்",
+                    Cotton: "பருத்தி",
+                    Wheat: "கோதுமை",
+                    Maize: "மக்காச்சோளம்",
+                    Sugarcane: "கரும்பு",
+                    "Sorghum (Jowar)": "சோளம்",
+                    "Pearl Millet (Bajra)": "கம்பு",
+                    "Finger Millet (Ragi)": "கேழ்வரகு",
+                    Groundnut: "நிலக்கடலை",
+                    Soybean: "சோயாபீன்",
+                    Mustard: "கடுகு",
+                    Sunflower: "சூரியகாந்தி",
+                    "Chickpea (Gram)": "கொண்டைக்கடலை",
+                    "Pigeon Pea (Tur)": "துவரம் பருப்பு",
+                    Lentil: "மசூர் பருப்பு",
+                    "Green Gram (Moong)": "பாசிப்பயறு",
+                    "Black Gram (Urad)": "உளுந்து",
+                    Tea: "தேநீர்",
+                    Coffee: "காபி",
+                    Rubber: "ரப்பர்",
+                    Banana: "வாழை",
+                    Mango: "மாம்பழம்",
+                    Grapes: "திராட்சை",
+                    Apple: "ஆப்பிள்",
+                    Orange: "ஆரஞ்சு",
+                    Onion: "வெங்காயம்",
+                    Potato: "உருளைக்கிழங்கு",
+                    Tomato: "தக்காளி",
+                    Chilli: "மிளகாய்",
+                    Turmeric: "மஞ்சள்",
+                    Ginger: "இஞ்சி",
+                    Jute: "சணல்",
+                },
+                soils: { "Sandy Loam": "மணல் கலந்த வளிமண்" },
+            },
+            kn: {
+                labels: { crop: "ಬೆಳೆ ಪ್ರಕಾರ", soil: "ಮಣ್ಣಿನ ಪ್ರಕಾರ" },
+                crops: {
+                    Paddy: "ಭತ್ತ",
+                    Coconut: "ತೆಂಗು",
+                    Cotton: "ಹತ್ತಿ",
+                    Wheat: "ಗೋಧಿ",
+                    Maize: "ಮೆಕ್ಕೆಜೋಳ",
+                    Sugarcane: "ಕಬ್ಬು",
+                    "Sorghum (Jowar)": "ಜೋಳ",
+                    "Pearl Millet (Bajra)": "ಸಜ್ಜೆ",
+                    "Finger Millet (Ragi)": "ರಾಗಿ",
+                    Groundnut: "ಕಡಲೆಕಾಯಿ",
+                    Soybean: "ಸೋಯಾಬೀನ್",
+                    Mustard: "ಸಾಸಿವೆ",
+                    Sunflower: "ಸೂರ್ಯಕಾಂತಿ",
+                    "Chickpea (Gram)": "ಕಡಲೆ",
+                    "Pigeon Pea (Tur)": "ತೊಗರಿ",
+                    Lentil: "ಮಸೂರ",
+                    "Green Gram (Moong)": "ಹೆಸರು ಕಾಳು",
+                    "Black Gram (Urad)": "ಉದ್ದಿನ ಬೇಳೆ",
+                    Tea: "ಚಹಾ",
+                    Coffee: "ಕಾಫಿ",
+                    Rubber: "ರಬ್ಬರ್",
+                    Banana: "ಬಾಳೆಹಣ್ಣು",
+                    Mango: "ಮಾವು",
+                    Grapes: "ದ್ರಾಕ್ಷಿ",
+                    Apple: "ಸೇಬು",
+                    Orange: "ಕಿತ್ತಳೆ",
+                    Onion: "ಈರುಳ್ಳಿ",
+                    Potato: "ಆಲೂಗಡ್ಡೆ",
+                    Tomato: "ಟೊಮೇಟೋ",
+                    Chilli: "ಮೆಣಸಿನಕಾಯಿ",
+                    Turmeric: "ಅರಿಶಿನ",
+                    Ginger: "ಶುಂಠಿ",
+                    Jute: "ಜ್ಯೂಟ್",
+                },
+                soils: { "Sandy Loam": "ಮರಳು ಮಿಶ್ರಿತ ದೋಮಟ ಮಣ್ಣು" },
+            },
+            ml: {
+                labels: { crop: "വിള തരം", soil: "മണ്ണിന്റെ തരം" },
+                crops: {
+                    Paddy: "നെല്ല്",
+                    Coconut: "തേങ്ങ",
+                    Cotton: "പരുത്തി",
+                    Wheat: "ഗോതമ്പ്",
+                    Maize: "ചോളം",
+                    Sugarcane: "കരിമ്പ്",
+                    "Sorghum (Jowar)": "ജോവർ",
+                    "Pearl Millet (Bajra)": "ബജ്ര",
+                    "Finger Millet (Ragi)": "റാഗി",
+                    Groundnut: "കടല",
+                    Soybean: "സോയാബീൻ",
+                    Mustard: "കടുക്",
+                    Sunflower: "സൂര്യകാന്തി",
+                    "Chickpea (Gram)": "കടല (ചിക്ക്പി)",
+                    "Pigeon Pea (Tur)": "തുവര",
+                    Lentil: "മസൂർ",
+                    "Green Gram (Moong)": "മൂങ്ങ്",
+                    "Black Gram (Urad)": "ഉഴുന്ന്",
+                    Tea: "ചായ",
+                    Coffee: "കാപ്പി",
+                    Rubber: "റബ്ബർ",
+                    Banana: "വാഴ",
+                    Mango: "മാങ്ങ",
+                    Grapes: "മുന്തിരി",
+                    Apple: "ആപ്പിൾ",
+                    Orange: "ഓറഞ്ച്",
+                    Onion: "ഉള്ളി",
+                    Potato: "ഉരുളക്കിഴങ്ങ്",
+                    Tomato: "തക്കാളി",
+                    Chilli: "മുളക്",
+                    Turmeric: "മഞ്ഞൾ",
+                    Ginger: "ഇഞ്ചി",
+                    Jute: "ജ്യൂട്ട്",
+                },
+                soils: { "Sandy Loam": "മണൽ കലർന്ന ലോം മണ്ണ്" },
+            },
+            bn: {
+                labels: { crop: "ফসলের ধরন", soil: "মাটির ধরন" },
+                crops: {
+                    Paddy: "ধান",
+                    Coconut: "নারকেল",
+                    Cotton: "তুলা",
+                    Wheat: "গম",
+                    Maize: "ভুট্টা",
+                    Sugarcane: "আখ",
+                    "Sorghum (Jowar)": "জোয়ার",
+                    "Pearl Millet (Bajra)": "বাজরা",
+                    "Finger Millet (Ragi)": "রাগি",
+                    Groundnut: "চিনাবাদাম",
+                    Soybean: "সয়াবিন",
+                    Mustard: "সরিষা",
+                    Sunflower: "সূর্যমুখী",
+                    "Chickpea (Gram)": "ছোলা",
+                    "Pigeon Pea (Tur)": "আরহার (তুর)",
+                    Lentil: "মসুর",
+                    "Green Gram (Moong)": "মুগ",
+                    "Black Gram (Urad)": "উড়দ",
+                    Tea: "চা",
+                    Coffee: "কফি",
+                    Rubber: "রাবার",
+                    Banana: "কলা",
+                    Mango: "আম",
+                    Grapes: "আঙুর",
+                    Apple: "আপেল",
+                    Orange: "কমলা",
+                    Onion: "পেঁয়াজ",
+                    Potato: "আলু",
+                    Tomato: "টমেটো",
+                    Chilli: "লঙ্কা",
+                    Turmeric: "হলুদ",
+                    Ginger: "আদা",
+                    Jute: "পাট",
+                },
+                soils: { "Sandy Loam": "বালুকাময় দোআঁশ" },
+            },
+            mr: {
+                labels: { crop: "पिकाचा प्रकार", soil: "मातीचा प्रकार" },
+                crops: {
+                    Paddy: "भात",
+                    Coconut: "नारळ",
+                    Cotton: "कापूस",
+                    Wheat: "गहू",
+                    Maize: "मका",
+                    Sugarcane: "ऊस",
+                    "Sorghum (Jowar)": "ज्वारी",
+                    "Pearl Millet (Bajra)": "बाजरी",
+                    "Finger Millet (Ragi)": "नाचणी (रागी)",
+                    Groundnut: "भुईमूग",
+                    Soybean: "सोयाबीन",
+                    Mustard: "मोहरी",
+                    Sunflower: "सूर्यफूल",
+                    "Chickpea (Gram)": "हरभरा",
+                    "Pigeon Pea (Tur)": "तूर",
+                    Lentil: "मसूर",
+                    "Green Gram (Moong)": "मूग",
+                    "Black Gram (Urad)": "उडीद",
+                    Tea: "चहा",
+                    Coffee: "कॉफी",
+                    Rubber: "रबर",
+                    Banana: "केळी",
+                    Mango: "आंबा",
+                    Grapes: "द्राक्षे",
+                    Apple: "सफरचंद",
+                    Orange: "संत्रा",
+                    Onion: "कांदा",
+                    Potato: "बटाटा",
+                    Tomato: "टोमॅटो",
+                    Chilli: "मिरची",
+                    Turmeric: "हळद",
+                    Ginger: "आले",
+                    Jute: "ज्यूट",
+                },
+                soils: { "Sandy Loam": "वाळूयुक्त दोमट" },
+            },
+            gu: {
+                labels: { crop: "પાકનો પ્રકાર", soil: "માટીનો પ્રકાર" },
+                crops: {
+                    Paddy: "ધાન",
+                    Coconut: "નારિયેળ",
+                    Cotton: "કપાસ",
+                    Wheat: "ઘઉં",
+                    Maize: "મકાઈ",
+                    Sugarcane: "શેરડી",
+                    "Sorghum (Jowar)": "જવાર",
+                    "Pearl Millet (Bajra)": "બાજરી",
+                    "Finger Millet (Ragi)": "રાગી",
+                    Groundnut: "મગફળી",
+                    Soybean: "સોયાબીન",
+                    Mustard: "રાઈ",
+                    Sunflower: "સૂર્યમુખી",
+                    "Chickpea (Gram)": "ચણા",
+                    "Pigeon Pea (Tur)": "તુવર",
+                    Lentil: "મસૂર",
+                    "Green Gram (Moong)": "મૂંગ",
+                    "Black Gram (Urad)": "ઉરદ",
+                    Tea: "ચા",
+                    Coffee: "કોફી",
+                    Rubber: "રબર",
+                    Banana: "કેળું",
+                    Mango: "આંબો",
+                    Grapes: "દ્રાક્ષ",
+                    Apple: "સફરજન",
+                    Orange: "સંતરું",
+                    Onion: "ડુંગળી",
+                    Potato: "બટાટા",
+                    Tomato: "ટામેટાં",
+                    Chilli: "મરચાં",
+                    Turmeric: "હળદર",
+                    Ginger: "આદુ",
+                    Jute: "જૂટ",
+                },
+                soils: { "Sandy Loam": "રેતાળ દોમટ" },
+            },
+            pa: {
+                labels: { crop: "ਫਸਲ ਦੀ ਕਿਸਮ", soil: "ਮਿੱਟੀ ਦੀ ਕਿਸਮ" },
+                crops: {
+                    Paddy: "ਧਾਨ",
+                    Coconut: "ਨਾਰੀਅਲ",
+                    Cotton: "ਕਪਾਹ",
+                    Wheat: "ਗੰਧਮ",
+                    Maize: "ਮੱਕੀ",
+                    Sugarcane: "ਗੰਨਾ",
+                    "Sorghum (Jowar)": "ਜਵਾਰ",
+                    "Pearl Millet (Bajra)": "ਬਾਜਰਾ",
+                    "Finger Millet (Ragi)": "ਰਾਗੀ",
+                    Groundnut: "ਮੂੰਗਫਲੀ",
+                    Soybean: "ਸੋਇਆਬੀਨ",
+                    Mustard: "ਸਰੋਂ",
+                    Sunflower: "ਸੂਰਜਮੁਖੀ",
+                    "Chickpea (Gram)": "ਚਣਾ",
+                    "Pigeon Pea (Tur)": "ਤੂਰ",
+                    Lentil: "ਮਸੂਰ",
+                    "Green Gram (Moong)": "ਮੂੰਗ",
+                    "Black Gram (Urad)": "ਉੜਦ",
+                    Tea: "ਚਾਹ",
+                    Coffee: "ਕੌਫੀ",
+                    Rubber: "ਰੱਬੜ",
+                    Banana: "ਕੇਲਾ",
+                    Mango: "ਆਮ",
+                    Grapes: "ਅੰਗੂਰ",
+                    Apple: "ਸੇਬ",
+                    Orange: "ਸੰਤਰਾ",
+                    Onion: "ਪਿਆਜ਼",
+                    Potato: "ਆਲੂ",
+                    Tomato: "ਟਮਾਟਰ",
+                    Chilli: "ਮਿਰਚ",
+                    Turmeric: "ਹਲਦੀ",
+                    Ginger: "ਅਦਰਕ",
+                    Jute: "ਜੂਟ",
+                },
+                soils: { "Sandy Loam": "ਰੇਤਲੀ ਦੋਮਟ" },
+            },
+            or: {
+                labels: { crop: "ଫସଲ ପ୍ରକାର", soil: "ମାଟି ପ୍ରକାର" },
+                crops: {
+                    Paddy: "ଧାନ",
+                    Coconut: "ନାଡ଼ିଆ",
+                    Cotton: "କପା",
+                    Wheat: "ଗହମ",
+                    Maize: "ମକା",
+                    Sugarcane: "ଆଖୁ",
+                    "Sorghum (Jowar)": "ଜ୍ୱାର",
+                    "Pearl Millet (Bajra)": "ବାଜରା",
+                    "Finger Millet (Ragi)": "ମାଣ୍ଡିଆ (ରାଗି)",
+                    Groundnut: "ଚିନାବାଦାମ",
+                    Soybean: "ସୋୟାବିନ",
+                    Mustard: "ସୋରିଷ",
+                    Sunflower: "ସୂର୍ଯ୍ୟମୁଖୀ",
+                    "Chickpea (Gram)": "ଛୋଳା",
+                    "Pigeon Pea (Tur)": "ତୁର",
+                    Lentil: "ମସୁର",
+                    "Green Gram (Moong)": "ମୁଗ",
+                    "Black Gram (Urad)": "ଉରଦ",
+                    Tea: "ଚା",
+                    Coffee: "କଫି",
+                    Rubber: "ରବର",
+                    Banana: "କଦଳି",
+                    Mango: "ଆମ୍ବ",
+                    Grapes: "ଦ୍ରାକ୍ଷା",
+                    Apple: "ଆପେଲ",
+                    Orange: "କମଳା",
+                    Onion: "ପିଆଜ",
+                    Potato: "ଆଳୁ",
+                    Tomato: "ଟମାଟୋ",
+                    Chilli: "ଲଙ୍କା",
+                    Turmeric: "ହଳଦୀ",
+                    Ginger: "ଆଦା",
+                    Jute: "ଜୁଟ୍",
+                },
+                soils: { "Sandy Loam": "ବାଲୁକା ମିଶ୍ରିତ ଦୋଆଁଶ" },
+            },
+            ur: {
+                labels: { crop: "فصل کی قسم", soil: "مٹی کی قسم" },
+                crops: {
+                    Paddy: "دھان",
+                    Coconut: "ناریل",
+                    Cotton: "کپاس",
+                    Wheat: "گندم",
+                    Maize: "مکئی",
+                    Sugarcane: "گنا",
+                    "Sorghum (Jowar)": "جوار",
+                    "Pearl Millet (Bajra)": "باجرا",
+                    "Finger Millet (Ragi)": "راگی",
+                    Groundnut: "مونگ پھلی",
+                    Soybean: "سویا بین",
+                    Mustard: "سرسوں",
+                    Sunflower: "سورج مکھی",
+                    "Chickpea (Gram)": "چنا",
+                    "Pigeon Pea (Tur)": "تور",
+                    Lentil: "مسور",
+                    "Green Gram (Moong)": "مونگ",
+                    "Black Gram (Urad)": "اڑد",
+                    Tea: "چائے",
+                    Coffee: "کافی",
+                    Rubber: "ربڑ",
+                    Banana: "کیلا",
+                    Mango: "آم",
+                    Grapes: "انگور",
+                    Apple: "سیب",
+                    Orange: "سنگترہ",
+                    Onion: "پیاز",
+                    Potato: "آلو",
+                    Tomato: "ٹماٹر",
+                    Chilli: "مرچ",
+                    Turmeric: "ہلدی",
+                    Ginger: "ادرک",
+                    Jute: "جوٹ",
+                },
+                soils: { "Sandy Loam": "ریتلی دوامی" },
+            },
+        };
+
+        function _uiLang() {
+            if (currentLang === 'en') return 'en';
+            return (detectedLang || localLang || 'en').toLowerCase();
+        }
+
+        function applyLocalization() {
+            const lang = _uiLang();
+            const dict = I18N[lang] || I18N.en;
+
+            const cropLabel = document.getElementById('label-crop');
+            const soilLabel = document.getElementById('label-soil');
+            if (cropLabel) cropLabel.innerText = dict.labels.crop || I18N.en.labels.crop;
+            if (soilLabel) soilLabel.innerText = dict.labels.soil || I18N.en.labels.soil;
+
+            const cropSelect = document.getElementById('crop-input');
+            if (cropSelect) {
+                Array.from(cropSelect.options || []).forEach(opt => {
+                    if (!opt.getAttribute('data-en')) opt.setAttribute('data-en', opt.textContent || opt.value || "");
+                    const enText = opt.getAttribute('data-en') || opt.value;
+                    opt.textContent = (lang === 'en')
+                        ? enText
+                        : ((dict.crops && dict.crops[opt.value]) || enText);
+                });
+            }
+
+            const soilEl = document.getElementById('ui-soil');
+            if (soilEl) {
+                const soilEn = soilEl.getAttribute('data-en') || (soilEl.innerText || "");
+                const soilTranslated = (lang === 'en')
+                    ? soilEn
+                    : ((dict.soils && dict.soils[soilEn]) || soilEn);
+                soilEl.innerText = soilTranslated;
+            }
+        }
+
+        function updateLangUi() {
+            const btn = document.getElementById('lang-btn');
+            // Button shows what you'll switch to when tapped.
+            const localLabel = (detectedLang || localLang || 'local').toUpperCase();
+            btn.innerText = (currentLang === 'en') ? localLabel : 'EN';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLangUi();
+            applyLocalization();
+
+            const cropSelect = document.getElementById('crop-input');
+            if (cropSelect) {
+                cropSelect.addEventListener('change', () => {
+                    // Refresh so fertilizer list matches selected crop.
+                    startAdvisor().catch(() => {});
+                });
+            }
+
+            const camBtn = document.getElementById('soil-open-camera');
+            const galBtn = document.getElementById('soil-open-gallery');
+            const camInput = document.getElementById('soil-camera-input');
+            const galInput = document.getElementById('soil-gallery-input');
+            const cameraCloseBtn = document.getElementById('soil-camera-close');
+            const cameraCaptureBtn = document.getElementById('soil-camera-capture');
+
+            if (camBtn) camBtn.addEventListener('click', () => openLiveCameraOrFallback());
+            if (galBtn && galInput) galBtn.addEventListener('click', () => galInput.click());
+            if (cameraCloseBtn) cameraCloseBtn.addEventListener('click', () => closeSoilCameraModal());
+            if (cameraCaptureBtn) cameraCaptureBtn.addEventListener('click', () => captureSoilPhoto());
+
+            if (camInput) camInput.addEventListener('change', (e) => onSoilFileChosen(e));
+            if (galInput) galInput.addEventListener('change', (e) => onSoilFileChosen(e));
+
+            // Auto-fetch weather/advice on app open (no mic tap needed).
+            startAdvisor().catch(() => {});
+        });
+
+        function toggleLang() {
+            currentLang = (currentLang === 'en') ? 'auto' : 'en';
+            updateLangUi();
+            applyLocalization();
+            // Re-fetch so advisory text (irrigation/rain/fertilizer) matches the selected language.
+            startAdvisor().catch(() => {});
+        }
+
+        function openSoilScanSheet() {
+            const sheet = document.getElementById('soil-scan-sheet');
+            if (!sheet) return;
+            sheet.classList.remove('hidden');
+            sheet.classList.add('flex');
+        }
+
+        function closeSoilScanSheet() {
+            const sheet = document.getElementById('soil-scan-sheet');
+            if (!sheet) return;
+            sheet.classList.add('hidden');
+            sheet.classList.remove('flex');
+        }
+
+        let _soilCameraStream = null;
+
+        function _openModal(el) {
+            if (!el) return;
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        }
+
+        function _closeModal(el) {
+            if (!el) return;
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
+
+        async function openLiveCameraOrFallback() {
+            closeSoilScanSheet();
+
+            const canLiveCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+            if (!canLiveCamera) {
+                // Fallback: mobile browsers often open camera UI via file input `capture`.
+                const camInput = document.getElementById('soil-camera-input');
+                if (camInput) camInput.click();
+                return;
+            }
+
+            const modal = document.getElementById('soil-camera-modal');
+            const video = document.getElementById('soil-camera-video');
+            const note = document.getElementById('soil-camera-note');
+
+            try {
+                _openModal(modal);
+                if (note) note.innerText = "Requesting camera permission...";
+
+                // Prefer back camera when available; laptops will ignore facingMode.
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" } },
+                    audio: false
+                });
+                _soilCameraStream = stream;
+                if (video) video.srcObject = stream;
+                if (note) note.innerText = "Align soil in the frame, then tap Capture.";
+            } catch (err) {
+                console.warn("Live camera failed, falling back:", err);
+                closeSoilCameraModal();
+                const camInput = document.getElementById('soil-camera-input');
+                if (camInput) camInput.click();
+            }
+        }
+
+        function closeSoilCameraModal() {
+            const modal = document.getElementById('soil-camera-modal');
+            const video = document.getElementById('soil-camera-video');
+            _closeModal(modal);
+            if (video) video.srcObject = null;
+            if (_soilCameraStream) {
+                try { _soilCameraStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+                _soilCameraStream = null;
+            }
+        }
+
+        async function captureSoilPhoto() {
+            const video = document.getElementById('soil-camera-video');
+            if (!video) return;
+
+            const w = video.videoWidth || 0;
+            const h = video.videoHeight || 0;
+            if (!w || !h) return;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            ctx.drawImage(video, 0, 0, w, h);
+
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) return;
+
+            closeSoilCameraModal();
+
+            const file = new File([blob], `soil-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            await analyzeSoilFile(file);
+        }
+
+        async function onSoilFileChosen(e) {
+            const input = e && e.target;
+            const file = input && input.files && input.files[0];
+            if (!file) return;
+            try {
+                await analyzeSoilFile(file);
+            } finally {
+                if (input) input.value = "";
+            }
+        }
+
+        async function analyzeSoilFile(file) {
+            closeSoilScanSheet();
+
+            const preview = document.getElementById('soil-preview');
+            const hint = document.getElementById('soil-scan-hint');
+            if (preview) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+            }
+            if (hint) hint.innerText = "Analyzing soil photo...";
+
+            const crop = document.getElementById('crop-input').value;
+            const waterUi = document.getElementById('ui-water');
+            waterUi.innerText = "Analyzing soil photo...";
+
+            const fd = new FormData();
+            fd.append('image', file);
+            fd.append('crop', crop);
+            fd.append('lang', currentLang);
+
+            const tempText = (document.getElementById('ui-temp').innerText || "").replace(/[^\d.\-]/g, "");
+            const tempVal = parseFloat(tempText);
+            if (!Number.isNaN(tempVal)) fd.append('temp', String(tempVal));
+
+            try {
+                // Try to include location so the server can also return current weather for the Weather card.
+                await new Promise((resolve) => {
+                    if (!navigator.geolocation) return resolve();
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            try {
+                                fd.append('lat', String(pos.coords.latitude));
+                                fd.append('lon', String(pos.coords.longitude));
+                            } catch (_) {}
+                            resolve();
+                        },
+                        () => resolve(),
+                        { timeout: 5000 }
+                    );
+                });
+
+                const response = await fetch('/api/soil-scan', { method: 'POST', body: fd });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || data.details || "Server error");
+
+                if (data.lang && currentLang !== 'en') {
+                    detectedLang = data.lang;
+                }
+                updateLangUi();
+                applyLocalization();
+
+                // Update Weather card if the API returned it.
+                if (data.temp !== undefined && data.temp !== null) {
+                    document.getElementById('ui-temp').innerText = data.temp + "\u00B0C";
+                }
+                if (data.humidity !== undefined && data.humidity !== null) {
+                    document.getElementById('ui-hum').innerText = data.humidity + "%";
+                }
+                if (data.location && (data.location.city || data.location.country)) {
+                    const city = data.location.city || "";
+                    const country = data.location.country || "";
+                    const place = [city, country].filter(Boolean).join(", ");
+                    document.getElementById('ui-place').innerText = "Location: " + place;
+                }
+
+                const soilEl = document.getElementById('ui-soil');
+                if (soilEl && data.soil_type) {
+                    soilEl.setAttribute('data-en', data.soil_type);
+                    soilEl.innerText = data.soil_type;
+                }
+                lastSoilCategory = data.soil_category || null;
+
+                if (hint) {
+                    const conf = (data.soil_confidence !== undefined && data.soil_confidence !== null)
+                        ? ` (conf ${(Number(data.soil_confidence) * 100).toFixed(0)}%)`
+                        : "";
+                    const src = data.soil_source === 'soilgrids' ? " (GPS)" : (data.soil_source ? " (Photo)" : "");
+                    hint.innerText = "Soil scanned" + src + conf;
+                }
+
+                if (data.irrigation) waterUi.innerText = data.irrigation;
+                const fertAdviceEl = document.getElementById('ui-fert-advice');
+                if (fertAdviceEl) {
+                    const parts = [];
+                    if (data.rain_when) parts.push("Rain: " + data.rain_when);
+                    if (data.fertilizer_advice) parts.push("Fertilizer: " + data.fertilizer_advice);
+                    fertAdviceEl.innerText = parts.join("\n");
+                }
+            } catch (err) {
+                console.error(err);
+                if (hint) hint.innerText = "Soil scan failed.";
+                waterUi.innerText = (err && err.message) ? err.message : "Soil scan failed.";
+            }
+        }
+
+        async function startAdvisor() {
+            const crop = document.getElementById('crop-input').value;
+            const waterUi = document.getElementById('ui-water');
+            
+            waterUi.innerText = "Refreshing weather...";
+
+            async function callAnalyze(payload) {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || data.details || "Server error");
+                }
+                return data;
+            }
+
+            async function handleResult(data) {
+                lastAnalysis = data;
+                lastAnalysisAt = Date.now();
+                // Update Weather Stats
+                if (data.temp !== undefined && data.temp !== null) {
+                    document.getElementById('ui-temp').innerText = data.temp + "\u00B0C";
+                }
+                if (data.humidity !== undefined && data.humidity !== null) {
+                    document.getElementById('ui-hum').innerText = data.humidity + "%";
+                }
+                if (data.location && (data.location.city || data.location.country)) {
+                    const city = data.location.city || "";
+                    const country = data.location.country || "";
+                    const place = [city, country].filter(Boolean).join(", ");
+                    document.getElementById('ui-place').innerText = "Location: " + place;
+                }
+                if (data.lang && currentLang !== 'en') {
+                    detectedLang = data.lang;
+                }
+                updateLangUi();
+                applyLocalization();
+
+                // Update Translated Advice
+                waterUi.innerText = data.irrigation;
+                const fertAdviceEl = document.getElementById('ui-fert-advice');
+                if (fertAdviceEl) {
+                    const parts = [];
+                    if (data.rain_when) parts.push("Rain: " + data.rain_when);
+                    if (data.fertilizer_advice) parts.push("Fertilizer: " + data.fertilizer_advice);
+                    fertAdviceEl.innerText = parts.join("\n");
+                }
+
+                // Update Fertilizer List with Units
+                const list = document.getElementById('fert-list');
+                list.innerHTML = "";
+                (data.fertilizers || []).forEach(f => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-700">${f.name}</span>
+                                <span class="text-[10px] text-gray-400 font-bold">${f.unit} Pack</span>
+                            </div>
+                            <span class="text-sm font-black text-emerald-600">&#8377;${f.price}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    lastCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                    const data = await callAnalyze({ 
+                        lat: pos.coords.latitude, 
+                        lon: pos.coords.longitude,
+                        crop: crop,
+                        lang: currentLang,
+                        soil_category: lastSoilCategory
+                    });
+                    await handleResult(data);
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    waterUi.innerText = error && error.message ? error.message : "Error connecting to server.";
+                }
+            }, (err) => {
+                // Geo blocked/denied: fall back to approximate IP-based location on the server.
+                console.warn("Geolocation failed:", err);
+                waterUi.innerText = "Location blocked. Using approximate location...";
+                callAnalyze({ crop: crop, lang: currentLang, soil_category: lastSoilCategory })
+                    .then(handleResult)
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        waterUi.innerText = error && error.message ? error.message : "Error connecting to server.";
+                    });
+            });
+        }
+
+        function _setMicRecordingUi(isRecording) {
+            const btn = document.getElementById('mic-btn');
+            if (!btn) return;
+            if (isRecording) {
+                btn.classList.remove('bg-emerald-600');
+                btn.classList.add('bg-red-600');
+            } else {
+                btn.classList.add('bg-emerald-600');
+                btn.classList.remove('bg-red-600');
+            }
+        }
+
+        async function toggleVoiceAssistant() {
+            const waterUi = document.getElementById('ui-water');
+
+            if (_isRecording) {
+                try { if (_recorder) _recorder.stop(); } catch (_) {}
+                _isRecording = false;
+                _setMicRecordingUi(false);
+                waterUi.innerText = "Processing voice...";
+                return;
+            }
+
+            try {
+                _recorderChunks = [];
+                _recorderStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                _recorder = new MediaRecorder(_recorderStream);
+                _recorder.ondataavailable = (e) => { if (e.data) _recorderChunks.push(e.data); };
+                _recorder.onstop = async () => {
+                    try {
+                        const blobType = (_recorderChunks[0] && _recorderChunks[0].type) ? _recorderChunks[0].type : 'audio/webm';
+                        const blob = new Blob(_recorderChunks, { type: blobType });
+                        await handleVoiceBlob(blob);
+                    } finally {
+                        try { _recorderStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+                        _recorderStream = null;
+                        _recorder = null;
+                        _recorderChunks = [];
+                    }
+                };
+                _recorder.start();
+                _isRecording = true;
+                _setMicRecordingUi(true);
+                waterUi.innerText = "Listening... tap mic again to stop.";
+            } catch (err) {
+                console.error(err);
+                waterUi.innerText = "Microphone permission denied or unavailable.";
+            }
+        }
+
+        async function handleVoiceBlob(blob) {
+            const waterUi = document.getElementById('ui-water');
+            const fertAdviceEl = document.getElementById('ui-fert-advice');
+
+            function _hasWebSpeech() {
+                return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+            }
+
+            async function _webSpeechToText() {
+                return await new Promise((resolve, reject) => {
+                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (!SR) return reject(new Error("Web Speech API not supported"));
+                    const rec = new SR();
+                    const base = (detectedLang || localLang || 'en').toLowerCase();
+                    rec.lang = (base === 'en') ? 'en-IN' : `${base}-IN`;
+                    rec.interimResults = false;
+                    rec.maxAlternatives = 1;
+                    rec.onresult = (e) => {
+                        try {
+                            const t = e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript;
+                            resolve((t || "").trim());
+                        } catch (_) {
+                            resolve("");
+                        }
+                    };
+                    rec.onerror = (e) => reject(new Error((e && e.error) ? e.error : "speech_error"));
+                    rec.onend = () => {};
+                    rec.start();
+                });
+            }
+
+            async function _jsonSafe(resp) {
+                try { return await resp.json(); } catch (_) { return {}; }
+            }
+
+            try {
+                const fd = new FormData();
+                fd.append('audio', blob, 'question.webm');
+                fd.append('lang', currentLang);
+
+                const sttResp = await fetch('/api/stt', { method: 'POST', body: fd });
+                const sttData = await _jsonSafe(sttResp);
+                if (!sttResp.ok) {
+                    const msg = sttData.error || sttData.details || "STT failed";
+                    // Fallback to browser speech recognition if server STT isn't available (common on Vercel).
+                    if (String(msg).toLowerCase().includes("stt unavailable") && _hasWebSpeech()) {
+                        waterUi.innerText = "Server STT unavailable. Using browser voice...\nSpeak now.";
+                        const q = await _webSpeechToText();
+                        if (!q) throw new Error("Couldn't hear clearly. Please try again.");
+                        return await handleVoiceQuestionText(q);
+                    }
+                    throw new Error(msg);
+                }
+
+                const question = (sttData.text || "").trim();
+                if (!question) {
+                    waterUi.innerText = "Couldn't hear clearly. Please try again.";
+                    return;
+                }
+
+                await handleVoiceQuestionText(question);
+            } catch (err) {
+                console.error(err);
+                waterUi.innerText = (err && err.message) ? err.message : "Voice assistant failed.";
+            } finally {
+                _isRecording = false;
+                _setMicRecordingUi(false);
+            }
+        }
+
+        async function handleVoiceQuestionText(question) {
+            const waterUi = document.getElementById('ui-water');
+            const fertAdviceEl = document.getElementById('ui-fert-advice');
+
+            waterUi.innerText = "You asked:\n" + question + "\n\nAnswer:\nLoading...";
+
+            const qLower = String(question || "").toLowerCase();
+            const wantsFertilizerPrices =
+                (qLower.includes("fertilizer") && (qLower.includes("price") || qLower.includes("prices") || qLower.includes("rate") || qLower.includes("cost"))) ||
+                qLower.includes("urea price") ||
+                qLower.includes("dap price") ||
+                qLower.includes("mop price") ||
+                qLower.includes("npk price");
+
+            let answerText = "No answer available.";
+
+            if (wantsFertilizerPrices) {
+                const cropSelect = document.getElementById('crop-input');
+                const opts = cropSelect ? Array.from(cropSelect.options || []) : [];
+
+                function detectCrop(text) {
+                    const raw = String(text || "").toLowerCase();
+                    const norm = (s) => String(s || "")
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, ' ')
+                        .trim();
+                    const t = " " + norm(raw) + " ";
+                    if (t.includes(" rice ")) return "Paddy";
+                    if (t.includes(" paddy ")) return "Paddy";
+                    for (const opt of opts) {
+                        const candidates = [
+                            opt.value,
+                            opt.getAttribute('data-en'),
+                            opt.textContent
+                        ].filter(Boolean);
+                        for (const c of candidates) {
+                            const alias = norm(c);
+                            if (!alias) continue;
+                            if (t.includes(" " + alias + " ")) return opt.value;
+                        }
+                    }
+                    return null;
+                }
+
+                let crop = cropSelect ? cropSelect.value : "Paddy";
+                const detectedCrop = detectCrop(question);
+                if (detectedCrop) {
+                    crop = detectedCrop;
+                    if (cropSelect) cropSelect.value = detectedCrop;
+                }
+
+                try {
+                    const resp = await fetch('/api/fertilizers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ crop: crop, lang: currentLang })
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    if (!resp.ok) {
+                        throw new Error(data.error || data.details || "Failed to fetch fertilizer prices");
+                    }
+
+                    // Update fertilizer UI list.
+                    const list = document.getElementById('fert-list');
+                    if (list) {
+                        list.innerHTML = "";
+                        (data.fertilizers || []).forEach(f => {
+                            list.innerHTML += `
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-700">${f.name}</span>
+                                        <span class="text-[10px] text-gray-400 font-bold">${f.unit} Pack</span>
+                                    </div>
+                                    <span class="text-sm font-black text-emerald-600">&#8377;${f.price}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    answerText = data.text || `Fertilizer prices for ${data.crop || crop}.`;
+                    if (fertAdviceEl) fertAdviceEl.innerText = "";
+                } catch (err) {
+                    answerText = (err && err.message) ? err.message : "Failed to fetch fertilizer prices.";
+                }
+            } else {
+                // Use latest context; refresh only if we don't have one or it's old.
+                if (!lastAnalysis || (Date.now() - (lastAnalysisAt || 0)) > 10 * 60 * 1000) {
+                    await startAdvisor();
+                }
+
+                const d = lastAnalysis || {};
+                const answerParts = [];
+                if (d.irrigation) answerParts.push(d.irrigation);
+                if (d.rain_when) answerParts.push("Rain: " + d.rain_when);
+                if (d.fertilizer_advice) answerParts.push("Fertilizer: " + d.fertilizer_advice);
+                answerText = answerParts.filter(Boolean).join("\n\n") || "No answer available.";
+
+                if (fertAdviceEl) {
+                    const parts = [];
+                    if (d.rain_when) parts.push("Rain: " + d.rain_when);
+                    if (d.fertilizer_advice) parts.push("Fertilizer: " + d.fertilizer_advice);
+                    fertAdviceEl.innerText = parts.join("\n");
+                }
+            }
+
+            waterUi.innerText = "You asked:\n" + question + "\n\nAnswer:\n" + answerText;
+
+            // Speak the answer:
+            // 1) Try server-side Piper (`/api/tts`) if configured.
+            // 2) Fallback to browser speech synthesis if Piper is unavailable.
+            let spoke = false;
+            try {
+                const ttsResp = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: answerText, lang: currentLang })
+                });
+                if (ttsResp.ok) {
+                    const audioBlob = await ttsResp.blob();
+                    const url = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(url);
+                    await audio.play();
+                    spoke = true;
+                    audio.onended = () => URL.revokeObjectURL(url);
+                } else {
+                    // Most common cause: Piper not configured (missing PIPER_BIN / PIPER_MODEL).
+                    // Ignore and fall back to browser TTS.
+                }
+            } catch (_) {}
+
+            if (!spoke && 'speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(answerText);
+                    // currentLang is "en" or "auto"; use browser locale for auto.
+                    utter.lang = (currentLang === 'en') ? 'en-IN' : (navigator.language || 'en-IN');
+                    window.speechSynthesis.speak(utter);
+                    spoke = true;
+                } catch (_) {}
+            }
+        }
+    </script>
+</body>
+</html>
